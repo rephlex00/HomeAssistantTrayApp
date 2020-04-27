@@ -52,9 +52,10 @@ $contextmenu = New-Object System.Windows.Forms.ContextMenuStrip
 $haTool_Icon.ContextMenuStrip = $contextmenu
 
 foreach ($automation in $automations) {
+    $automationState = $automation.state
     $automationName = $automation.attributes.friendly_name
     $automationID = $($automation.entity_id.split('.')[1])
-    $menuItem = $haTool_Icon.ContextMenuStrip.Items.Add($automationName)
+    $menuItem = $haTool_Icon.ContextMenuStrip.Items.Add($automationName + ": " + $automationState)
     #$menuItem.Text = $automationName
     $menuItem.Tag = $automationID
     $menuItem.add_Click({
