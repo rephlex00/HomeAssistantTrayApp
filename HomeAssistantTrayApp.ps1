@@ -27,8 +27,8 @@ $headers = @{"Authorization" = "Bearer $($homeAssistant.GetNetworkCredential().P
 
 # Retrieve enabled Automations from HomeAssistant
 $states = Invoke-RestMethod -Method GET -Uri "$serverAddress/api/states" -Headers $headers
-$automations = $states | Where-Object {$_.entity_id -like "automation.*" -and $_.state -eq "on"} | Sort-Object -Property @{e={$_.attributes.friendly_name}}
- 
+$automations = $states | Where-Object {$_.entity_id -like "input_boolean.*" -and $_.state -eq "on"} | Sort-Object -Property @{e={$_.attributes.friendly_name}}
+
 # Add assemblies
 foreach ($assembly in @('System.Windows.Forms','PresentationFramework','System.Drawing','WindowsFormsIntegration')){
     [System.Reflection.Assembly]::LoadWithPartialName($assembly) | Out-Null
@@ -41,12 +41,12 @@ $iconStream = New-Object IO.MemoryStream($iconBytes, 0, $iconBytes.Length)
     $iconStream.Write($iconBytes, 0, $iconBytes.Length)
 $iconImage  = [System.Drawing.Image]::FromStream($iconStream, $true)
 
-# Add the systray icon 
+# Add the systray icon
 $haTool_Icon = New-Object System.Windows.Forms.NotifyIcon
 $haTool_Icon.Text = "HomeAssistant Tray Tool"
 $haTool_Icon.Icon = [System.Drawing.Icon]::FromHandle((New-Object System.Drawing.Bitmap -Argument $iconStream).GetHIcon())
 $haTool_Icon.Visible = $true
- 
+
 # Add all menus as context menus
 $contextmenu = New-Object System.Windows.Forms.ContextMenuStrip
 $haTool_Icon.ContextMenuStrip = $contextmenu
@@ -58,7 +58,7 @@ foreach ($automation in $automations) {
     #$menuItem.Text = $automationName
     $menuItem.Tag = $automationID
     $menuItem.add_Click({
-        Invoke-RestMethod -Method POST -Body (@{entity_id = "automation.$($this.Tag)"} | ConvertTo-Json) -Uri "$serverAddress/api/services/automation/trigger" -Headers $headers
+        Invoke-RestMethod -Method POST -Body (@{entity_id = "automation.$($this.Tag)"} | ConvertTo-Json) -Uri "$serverAddress/api/services/input_boolean/toggle" -Headers $headers
     })
 }
 
@@ -75,9 +75,9 @@ $exit.Text = "Exit"
 $haTool_Icon.Add_Click({
  If ($_.Button -eq [Windows.Forms.MouseButtons]::Left) {
   [Diagnostics.Process]::Start("$serverAddress")
- }    
+ }
 })
- 
+
 # Action after clicking on the Exit context menu
 $exit.add_Click({
     $haTool_Icon.Visible = $false
@@ -87,8 +87,8 @@ $exit.add_Click({
 
 # Action after clicking on the Restart context menu
 $restart.add_Click({
-    Start-Process -WindowStyle hidden powershell.exe "$PSCommandPath" 
- 
+    Start-Process -WindowStyle hidden powershell.exe "$PSCommandPath"
+
     $haTool_Icon.Visible = $false
     $window.Close()
     Stop-Process $pid
@@ -98,10 +98,10 @@ $restart.add_Click({
 $psWindow = '[DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);'
 $asyncwindow = Add-Type -MemberDefinition $psWindow -name Win32ShowWindowAsync -namespace Win32Functions -PassThru
 $null = $asyncwindow::ShowWindowAsync((Get-Process -PID $pid).MainWindowHandle, 0)
- 
+
 # Use Garbage Collection to reduce memory usage
 [System.GC]::Collect()
- 
+
 # Create an application context for it to all run within
 $appContext = New-Object System.Windows.Forms.ApplicationContext
 [void][System.Windows.Forms.Application]::Run($appContext)
