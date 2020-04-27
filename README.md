@@ -1,5 +1,6 @@
 # HomeAssistantTrayApp
- An application that sits in the Windows system tray to allow the user to trigger HomeAssistant automations.
+ An application that sits in the Windows system tray to allow the user to toggle HomeAssistant input_booleans. Forked from sup3rmark/HomeAssistantTrayApp.
+ 
 Requirements:
 - HomeAssistant
 - CredentialManager module
