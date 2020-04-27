@@ -27,7 +27,7 @@ $headers = @{"Authorization" = "Bearer $($homeAssistant.GetNetworkCredential().P
 
 # Retrieve enabled Automations from HomeAssistant
 $states = Invoke-RestMethod -Method GET -Uri "$serverAddress/api/states" -Headers $headers
-$automations = $states | Where-Object {$_.entity_id -like "input_boolean.*" -and $_.state -eq "on"} | Sort-Object -Property @{e={$_.attributes.friendly_name}}
+$automations = $states | Where-Object {$_.entity_id -like "input_boolean.*"} | Sort-Object -Property @{e={$_.attributes.friendly_name}}
 
 # Add assemblies
 foreach ($assembly in @('System.Windows.Forms','PresentationFramework','System.Drawing','WindowsFormsIntegration')){
